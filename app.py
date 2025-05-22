@@ -12,11 +12,13 @@ def infobae_rss():
     soup = BeautifulSoup(r.content, "html.parser")
 
     items = ""
-    for article in soup.select("a.caja-nota")[:10]:
-        title = article.get("title") or article.text.strip()
-        link = article.get("href")
+    for a_tag in soup.select("a.story-card-ctn")[:10]:
+        link = a_tag.get("href")
         if link and not link.startswith("http"):
             link = "https://www.infobae.com" + link
+        title_tag = a_tag.select_one("h2.story-card-hl")
+        title = title_tag.get_text(strip=True) if title_tag else "Sin título"
+
         items += f"""
         <item>
             <title>{title}</title>
@@ -34,7 +36,7 @@ def infobae_rss():
             {items}
         </channel>
     </rss>"""
-    
+
     return Response(rss_feed, mimetype='application/rss+xml')
 
 if __name__ == "__main__":
